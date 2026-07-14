@@ -59,8 +59,8 @@ const int HUM_SUELO_MINIMA = 60; // Encender bomba de agua si cae por debajo de 
 // TEMPORIZADORES Y TIEMPOS DE SEGURIDAD
 // =================================================================
 // Tiempos para la Bomba de Agua
-const unsigned long DURACION_RIEGO = 3000;              // Riego por 3 segundos (3000 ms)
-const unsigned long BLOQUEO_RIEGO = 15UL * 60UL * 1000UL; // Bloqueo de 15 minutos (evita inundar)
+const unsigned long DURACION_RIEGO = 30000;             // Riego por 30 segundos (30000 ms)
+const unsigned long BLOQUEO_RIEGO = 1UL * 60UL * 1000UL; // Bloqueo de 1 minuto para pruebas (evita inundar)
 
 // Tiempos para el Fotoperíodo de la Luz (14 horas encendido, 10 horas apagado)
 // NOTA: Para pruebas rápidas en el laboratorio, puedes cambiar 'UL * 60UL * 60UL * 1000UL'
@@ -172,25 +172,27 @@ void loop() {
 
   // B. Control de Humedad del Suelo (BOMBA DE AGUA - RIEGO INTELIGENTE)
   if (bombaRegando) {
-    // Si ya está regando, verificar si terminó el pulso de 3 segundos
+    // Si ya está regando, verificar si terminó el tiempo de riego
     if (tiempoActual - inicioRiego >= DURACION_RIEGO) {
       bombaRegando = false;
       ultimoRiego = tiempoActual; // Guarda el momento en que terminó de regar
       controlRele(RELE_BOMBA, false); // Apagar bomba
       
-      Serial.println("[BOMBA] Riego terminado. Iniciando 15 min de bloqueo.");
+      Serial.println("[BOMBA] Riego terminado. Iniciando periodo de bloqueo.");
       debeActualizarLCD = true;
     }
   } else {
     // Si no está regando, verificar si el suelo está seco (< 60%)
-    // Y comprobar que haya pasado el tiempo de bloqueo (15 minutos) desde el último riego
+    // Y comprobar que haya pasado el tiempo de bloqueo
     if (humSuelo < HUM_SUELO_MINIMA) {
       if (ultimoRiego == 0 || (tiempoActual - ultimoRiego >= BLOQUEO_RIEGO)) {
         bombaRegando = true;
         inicioRiego = tiempoActual;
         controlRele(RELE_BOMBA, true); // Encender bomba
         
-        Serial.println("[BOMBA] Humedad baja. Encendiendo bomba por 3 segundos.");
+        Serial.print("[BOMBA] Humedad baja. Encendiendo bomba por ");
+        Serial.print(DURACION_RIEGO / 1000);
+        Serial.println(" segundos.");
         debeActualizarLCD = true;
       }
     }
