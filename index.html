@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dashboard explicativo e interactivo de la Germinadora Inteligente con ESP32, optimizado para la germinación acelerada de lentejas.">
+    <title>Germinadora Inteligente IA - Panel de Monitoreo</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- CSS Estilos -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="glass-bg"></div>
+    <div class="container">
+        <!-- Header Principal -->
+        <header>
+            <div class="logo-area">
+                <span class="badge">ESP32 + Sensores</span>
+                <h1 id="main-title">Germinadora Inteligente IA</h1>
+                <p class="subtitle">Guía Interactiva & Simulador de Control Agrónomo para Lentejas</p>
+            </div>
+        </header>
+
+        <main>
+            <!-- SECCIÓN: SIMULADOR INTERACTIVO -->
+            <section class="simulator-section" aria-labelledby="sim-title">
+                <div class="card glass-card">
+                    <div class="card-header">
+                        <span class="icon">🔬</span>
+                        <h2 id="sim-title">Simulador de Sensores en Tiempo Real</h2>
+                    </div>
+                    <p class="card-desc">Mueve los deslizadores para cambiar las condiciones ambientales simuladas y observa cómo reaccionan automáticamente los periféricos de la germinadora.</p>
+                    
+                    <div class="simulator-grid">
+                        <!-- Deslizadores de Entrada (Sensores) -->
+                        <div class="sliders-container">
+                            <!-- Sensor 1: Temperatura -->
+                            <div class="slider-group">
+                                <div class="slider-info">
+                                    <label for="temp-slider">Temperatura Ambiente</label>
+                                    <span class="value-display"><span id="temp-val">22.0</span>°C</span>
+                                </div>
+                                <input type="range" id="temp-slider" min="5" max="40" step="0.5" value="22.0" class="custom-slider">
+                                <div class="slider-labels">
+                                    <span>Fresco (5°C)</span>
+                                    <span class="optimum-range">Rango Ideal Lenteja (18°C - 24°C)</span>
+                                    <span>Caliente (40°C)</span>
+                                </div>
+                            </div>
+
+                            <!-- Sensor 2: Humedad Aire -->
+                            <div class="slider-group">
+                                <div class="slider-info">
+                                    <label for="hum-air-slider">Humedad del Aire (DHT11)</label>
+                                    <span class="value-display"><span id="hum-air-val">70</span>%</span>
+                                </div>
+                                <input type="range" id="hum-air-slider" min="10" max="95" step="1" value="70" class="custom-slider">
+                                <div class="slider-labels">
+                                    <span>Seco (10%)</span>
+                                    <span class="optimum-range">Rango Ideal Lenteja (65% - 80%)</span>
+                                    <span>Húmedo (95%)</span>
+                                </div>
+                            </div>
+
+                            <!-- Sensor 3: Humedad Suelo -->
+                            <div class="slider-group">
+                                <div class="slider-info">
+                                    <label for="hum-soil-slider">Humedad del Suelo (ADC 34)</label>
+                                    <span class="value-display"><span id="hum-soil-val">65</span>%</span>
+                                </div>
+                                <input type="range" id="hum-soil-slider" min="0" max="100" step="1" value="65" class="custom-slider">
+                                <div class="slider-labels">
+                                    <span>Seco (0%)</span>
+                                    <span class="optimum-range">Mínimo Lenteja (60%)</span>
+                                    <span>Saturado (100%)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Indicadores de Salida (Periféricos / Relés) -->
+                        <div class="actuators-container">
+                            <h3>Estado de los Periféricos (Relés)</h3>
+                            <div class="actuators-grid">
+                                <!-- Luz -->
+                                <div class="actuator-card" id="act-luz">
+                                    <div class="actuator-icon">💡</div>
+                                    <div class="actuator-details">
+                                        <h4>Luz de Crecimiento</h4>
+                                        <p class="status-badge" id="luz-status">Activa (Fotoperíodo)</p>
+                                        <span class="pin-tag">Relé 1 - Pin 13</span>
+                                    </div>
+                                    <div class="toggle-light-btn" id="light-toggle-sim" title="Alternar Fotoperíodo Luz">Día/Noche</div>
+                                </div>
+
+                                <!-- Ventilador -->
+                                <div class="actuator-card" id="act-ventilador">
+                                    <div class="actuator-icon fan-icon">🌀</div>
+                                    <div class="actuator-details">
+                                        <h4>Ventilador</h4>
+                                        <p class="status-badge" id="vent-status">Apagado</p>
+                                        <span class="pin-tag">Relé 2 - Pin 32</span>
+                                    </div>
+                                </div>
+
+                                <!-- Bomba -->
+                                <div class="actuator-card" id="act-bomba">
+                                    <div class="actuator-icon water-icon">💧</div>
+                                    <div class="actuator-details">
+                                        <h4>Bomba de Agua</h4>
+                                        <p class="status-badge" id="pump-status">Inactiva</p>
+                                        <span class="pin-tag">Relé 3 - Pin 27</span>
+                                    </div>
+                                </div>
+
+                                <!-- Humidificador -->
+                                <div class="actuator-card" id="act-humidificador">
+                                    <div class="actuator-icon mist-icon">💨</div>
+                                    <div class="actuator-details">
+                                        <h4>Humidificador</h4>
+                                        <p class="status-badge" id="humi-status">Apagado</p>
+                                        <span class="pin-tag">Relé 4 - Pin 14</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN: EXPLICACIÓN DE COMPONENTES -->
+            <section class="explanation-section" aria-labelledby="exp-title">
+                <h2 id="exp-title" class="section-title">Funcionamiento de Sensores y Periféricos</h2>
+                
+                <div class="explanation-grid">
+                    <!-- Sensor DHT11 -->
+                    <div class="card glass-card exp-card">
+                        <div class="card-icon">🌡️</div>
+                        <h3>Sensor Ambiente DHT11</h3>
+                        <p class="pin-info">Conexión: <strong>Pin GPIO 4</strong></p>
+                        <p class="exp-text">Mide la temperatura y humedad del aire que rodea las lentejas. El rango ideal para germinación es de <strong>18°C a 24°C</strong> con <strong>65% a 80%</strong> de humedad. Si sale de este rango, la ESP32 activa automáticamente la ventilación o humidificación para evitar la ralentización o aparición de moho.</p>
+                        <div class="logic-box">
+                            <span class="logic-title">Lógica Programada:</span>
+                            <ul>
+                                <li><strong>Temp > 25°C:</strong> Enciende Ventilador.</li>
+                                <li><strong>Hum. Aire < 65%:</strong> Enciende Humidificador.</li>
+                                <li><strong>Hum. Aire > 80%:</strong> Enciende Ventilador.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Sensor de Humedad de Suelo -->
+                    <div class="card glass-card exp-card">
+                        <div class="card-icon">🌱</div>
+                        <h3>Humedad de Suelo (ADC)</h3>
+                        <p class="pin-info">Conexión: <strong>Pin GPIO 34</strong></p>
+                        <p class="exp-text">Mide el agua contenida en el sustrato mediante un pin analógico. Se mapea la señal de 12 bits (0-4095) a un rango porcentual. Mantenemos el suelo con un nivel mínimo del <strong>60%</strong>. Valores muy bajos secarán los brotes de lenteja, mientras que saturarlo (>90%) pudrirá las raíces.</p>
+                        <div class="logic-box">
+                            <span class="logic-title">Lógica de Riego Inteligente:</span>
+                            <p>Si la humedad baja de <strong>60%</strong>, la bomba se enciende por <strong>3 segundos</strong> y entra en un <strong>bloqueo de seguridad de 15 minutos</strong>. Esto permite que la tierra absorba el agua y evita riegos repetitivos dañinos.</p>
+                        </div>
+                    </div>
+
+                    <!-- Periféricos y Relés -->
+                    <div class="card glass-card exp-card">
+                        <div class="card-icon">⚙️</div>
+                        <h3>Ciclo y Control de Relés</h3>
+                        <p class="pin-info">Conexiones: <strong>Pines 13, 32, 27, 14</strong></p>
+                        <p class="exp-text">Los relés actúan como interruptores electrónicos controlados por señales del microcontrolador. En el ESP32, se configuraron como **activos en bajo (LOW = Encendido)** para mayor seguridad eléctrica.</p>
+                        <div class="logic-box">
+                            <span class="logic-title">Fotoperíodo de Luz (Pin 13):</span>
+                            <p>Proporciona <strong>14 horas de luz</strong> seguidas de <strong>10 horas de oscuridad</strong>. Simula un día de verano templado, ideal para acelerar el desarrollo del brote una vez que rompe la cáscara.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Monitoreo de Germinación Inteligente &copy; 2026. Diseñado para optimización de cultivos hidropónicos y germinadoras automáticas.</p>
+        </footer>
+    </div>
+
+    <!-- JS Lógica -->
+    <script src="app.js"></script>
+</body>
+</html>
